@@ -9,6 +9,7 @@
 /.rvmrc
 /.yardoc/*
 /Gemfile.lock
+/gemfiles/*.lock
 /coverage/*
 /dist
 /doc/*
