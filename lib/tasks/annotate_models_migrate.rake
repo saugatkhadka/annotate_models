@@ -4,30 +4,21 @@
 # Append annotations to Rake tasks for ActiveRecord, so annotate automatically gets
 # run after doing db:migrate.
 
-migration_tasks = %w(db:migrate db:migrate:up db:migrate:down db:migrate:reset db:migrate:redo db:rollback)
-if defined?(Rails::Application) && Rails.version.split('.').first.to_i >= 6
-  require 'active_record'
-
-  databases = ActiveRecord::Tasks::DatabaseTasks.setup_initial_database_yaml
-
-  ActiveRecord::Tasks::DatabaseTasks.for_each(databases) do |spec_name|
-    migration_tasks.concat(%w(db:migrate db:migrate:up db:migrate:down).map { |task| "#{task}:#{spec_name}" })
-  end
-end
+base_migration_tasks = %w(db:migrate db:migrate:up db:migrate:down db:migrate:reset db:migrate:redo db:rollback)
+migration_task_pattern = /\A(?:db:migrate|db:migrate:up|db:migrate:down|db:migrate:reset|db:migrate:redo|db:rollback)(?::.+)?\z/
+migration_tasks = (base_migration_tasks + Rake::Task.tasks.map(&:name).grep(migration_task_pattern)).uniq
 
 migration_tasks.each do |task|
   next unless Rake::Task.task_defined?(task)
 
   Rake::Task[task].enhance do
-    Rake::Task[Rake.application.top_level_tasks.last].enhance do
-      annotation_options_task = if Rake::Task.task_defined?('app:set_annotation_options')
-                                  'app:set_annotation_options'
-                                else
-                                  'set_annotation_options'
-                                end
-      Rake::Task[annotation_options_task].invoke
-      Annotate::Migration.update_annotations
-    end
+    annotation_options_task = if Rake::Task.task_defined?('app:set_annotation_options')
+                                'app:set_annotation_options'
+                              elsif Rake::Task.task_defined?('set_annotation_options')
+                                'set_annotation_options'
+                              end
+    Rake::Task[annotation_options_task].invoke if annotation_options_task
+    Annotate::Migration.update_annotations
   end
 end
 
