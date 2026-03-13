@@ -21,9 +21,11 @@ describe AnnotateRoutes::HeaderGenerator do
       let(:gemfile_exists) { true }
 
       it 'prefers bin/rails routes' do
-        expect(Open3).to receive(:capture2e).with('bin/rails', 'routes').and_return([routes_output, status])
+        allow(Open3).to receive(:capture2e).with('bin/rails', 'routes').and_return([routes_output, status])
 
         described_class.generate
+
+        expect(Open3).to have_received(:capture2e).with('bin/rails', 'routes')
       end
     end
 
@@ -32,9 +34,11 @@ describe AnnotateRoutes::HeaderGenerator do
       let(:gemfile_exists) { true }
 
       it 'falls back to bundle exec rails routes' do
-        expect(Open3).to receive(:capture2e).with('bundle', 'exec', 'rails', 'routes').and_return([routes_output, status])
+        allow(Open3).to receive(:capture2e).with('bundle', 'exec', 'rails', 'routes').and_return([routes_output, status])
 
         described_class.generate
+
+        expect(Open3).to have_received(:capture2e).with('bundle', 'exec', 'rails', 'routes')
       end
     end
 
@@ -43,9 +47,11 @@ describe AnnotateRoutes::HeaderGenerator do
       let(:gemfile_exists) { false }
 
       it 'falls back to rake routes' do
-        expect(Open3).to receive(:capture2e).with('rake', 'routes').and_return([routes_output, status])
+        allow(Open3).to receive(:capture2e).with('rake', 'routes').and_return([routes_output, status])
 
         described_class.generate
+
+        expect(Open3).to have_received(:capture2e).with('rake', 'routes')
       end
     end
 
@@ -55,10 +61,13 @@ describe AnnotateRoutes::HeaderGenerator do
       let(:failed_status) { instance_double(Process::Status, success?: false) }
 
       it 'tries bundle exec rails before rake routes' do
-        expect(Open3).to receive(:capture2e).with('bin/rails', 'routes').and_return(['', failed_status])
-        expect(Open3).to receive(:capture2e).with('bundle', 'exec', 'rails', 'routes').and_return([routes_output, status])
+        allow(Open3).to receive(:capture2e).with('bin/rails', 'routes').and_return(['', failed_status])
+        allow(Open3).to receive(:capture2e).with('bundle', 'exec', 'rails', 'routes').and_return([routes_output, status])
 
         described_class.generate
+
+        expect(Open3).to have_received(:capture2e).with('bin/rails', 'routes')
+        expect(Open3).to have_received(:capture2e).with('bundle', 'exec', 'rails', 'routes')
       end
     end
   end
