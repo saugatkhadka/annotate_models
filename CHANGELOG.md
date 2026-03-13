@@ -1,11 +1,14 @@
 Please see https://github.com/ctran/annotate_models/releases for changes between releases.
 
 ## Unreleased
+
+## 3.2.1
 Changes
 - Add CI coverage for Ruby 3.2, 3.3, and 3.4 against Rails 7.2 and 8.1.
 - Allow ActiveRecord 8.1 in the gemspec and update the development setup for modern Rails testing.
 - Prefer `bin/rails routes` for route annotations, falling back to `bundle exec rails routes` and `rake routes` for older projects.
 - Update `db:migrate` hooks to load safely for namespaced multi-database tasks and missing annotation option tasks.
+- Add upgrade documentation for this fork and focused RuboCop cleanup in the compatibility paths.
 
 ## 3.1.1
 Changes
@@ -331,4 +334,3 @@ See https://github.com/ctran/annotate_models/releases/tag/v2.7.0
     - spec/fixtures now also get annotated
     - added a task to remove the annotations
     - these options can be specified from command line as `-d` and `-p [before|after]`
-
