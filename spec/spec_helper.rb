@@ -33,6 +33,10 @@ require 'annotate/parser'
 require 'annotate/helpers'
 require 'annotate/constants'
 
+class << File
+  alias_method :exists?, :exist? unless method_defined?(:exists?)
+end
+
 RSpec.configure do |config|
   config.order = 'random'
   config.filter_run_when_matching :focus

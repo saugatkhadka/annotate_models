@@ -706,7 +706,7 @@ module AnnotateModels
       parse_options(options)
 
       header = options[:format_markdown] ? PREFIX_MD.dup : PREFIX.dup
-      version = ActiveRecord::Migrator.current_version rescue 0
+      version = current_schema_version
       if options[:include_version] && version > 0
         header << "\n# Schema version: #{version}"
       end
@@ -725,6 +725,21 @@ module AnnotateModels
 
     def expand_glob_into_files(glob)
       Dir.glob(glob)
+    end
+
+    def current_schema_version
+      migration_context = if ActiveRecord::Base.connection_pool.respond_to?(:migration_context)
+                            ActiveRecord::Base.connection_pool.migration_context
+                          elsif ActiveRecord::Base.connection.respond_to?(:migration_context)
+                            ActiveRecord::Base.connection.migration_context
+                          end
+
+      return migration_context.current_version if migration_context&.respond_to?(:current_version)
+      return ActiveRecord::Migrator.current_version if defined?(ActiveRecord::Migrator) && ActiveRecord::Migrator.respond_to?(:current_version)
+
+      0
+    rescue StandardError
+      0
     end
 
     def annotate_model_file(annotated, file, header, options)

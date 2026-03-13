@@ -1,3 +1,5 @@
+require 'open3'
+
 require_relative './helpers'
 
 module AnnotateRoutes
@@ -16,7 +18,7 @@ module AnnotateRoutes
       private
 
       def routes_map(options)
-        result = `rake routes`.chomp("\n").split(/\n/, -1)
+        result = routes_output.chomp("\n").split(/\n/, -1)
 
         # In old versions of Rake, the first line of output was the cwd.  Not so
         # much in newer ones.  We ditch that line if it exists, and if not, we
@@ -33,6 +35,25 @@ module AnnotateRoutes
         else
           result
         end
+      end
+
+      def routes_output
+        route_commands.each do |command|
+          output, status = Open3.capture2e(*command)
+          return output if status.success?
+        rescue Errno::ENOENT
+          next
+        end
+
+        ''
+      end
+
+      def route_commands
+        commands = []
+        commands << ['bin/rails', 'routes'] if File.exist?('bin/rails')
+        commands << ['bundle', 'exec', 'rails', 'routes'] if File.exist?('Gemfile')
+        commands << ['rake', 'routes']
+        commands
       end
     end
 

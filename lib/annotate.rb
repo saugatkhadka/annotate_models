@@ -94,8 +94,12 @@ module Annotate
           end
         end
       else
-        klass = Rails::Application.send(:subclasses).first
-        klass.eager_load!
+        if Rails.respond_to?(:application) && Rails.application
+          Rails.application.eager_load!
+        else
+          klass = Rails::Application.send(:subclasses).first
+          klass.eager_load!
+        end
       end
     else
       options[:model_dir].each do |dir|
