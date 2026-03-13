@@ -34,7 +34,7 @@ require 'annotate/helpers'
 require 'annotate/constants'
 
 class << File
-  alias_method :exists?, :exist? unless method_defined?(:exists?)
+  alias exists? exist? unless method_defined?(:exists?)
 end
 
 RSpec.configure do |config|

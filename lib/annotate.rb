@@ -16,9 +16,7 @@ rescue StandardError
 end
 
 module Annotate
-  ##
   # Set default values that can be overridden via environment variables.
-  #
   def self.set_defaults(options = {})
     return if @has_set_defaults
     @has_set_defaults = true
@@ -35,22 +33,19 @@ module Annotate
       end
 
       default_value = ENV[key.to_s] unless ENV[key.to_s].blank?
-      ENV[key.to_s] = default_value.nil? ? nil : default_value.to_s
+      ENV[key.to_s] = default_value&.to_s
     end
   end
 
-  ##
-  # TODO: what is the difference between this and set_defaults?
-  #
   def self.setup_options(options = {})
     Constants::POSITION_OPTIONS.each do |key|
-      options[key] = Annotate::Helpers.fallback(ENV[key.to_s], ENV['position'], 'before')
+      options[key] = Annotate::Helpers.fallback(ENV.fetch(key.to_s, nil), ENV.fetch('position', nil), 'before')
     end
     Constants::FLAG_OPTIONS.each do |key|
-      options[key] = Annotate::Helpers.true?(ENV[key.to_s])
+      options[key] = Annotate::Helpers.true?(ENV.fetch(key.to_s, nil))
     end
     Constants::OTHER_OPTIONS.each do |key|
-      options[key] = !ENV[key.to_s].blank? ? ENV[key.to_s] : nil
+      options[key] = !ENV[key.to_s].blank? ? ENV.fetch(key.to_s, nil) : nil
     end
     Constants::PATH_OPTIONS.each do |key|
       options[key] = !ENV[key.to_s].blank? ? ENV[key.to_s].split(',') : []
@@ -59,7 +54,6 @@ module Annotate
     options[:additional_file_patterns] ||= []
     options[:additional_file_patterns] = options[:additional_file_patterns].split(',') if options[:additional_file_patterns].is_a?(String)
     options[:model_dir] = ['app/models'] if options[:model_dir].empty?
-
     options[:wrapper_open] ||= options[:wrapper]
     options[:wrapper_close] ||= options[:wrapper]
 
@@ -93,13 +87,11 @@ module Annotate
             require_dependency file.sub(matcher, '\1')
           end
         end
+      elsif Rails.respond_to?(:application) && Rails.application
+        Rails.application.eager_load!
       else
-        if Rails.respond_to?(:application) && Rails.application
-          Rails.application.eager_load!
-        else
-          klass = Rails::Application.send(:subclasses).first
-          klass.eager_load!
-        end
+        klass = Rails::Application.send(:subclasses).first
+        klass.eager_load!
       end
     else
       options[:model_dir].each do |dir|
@@ -142,7 +134,7 @@ module Annotate
     private
 
     def load_requires(options)
-      options[:require].count > 0 &&
+      options[:require].any? &&
         options[:require].each { |path| require path }
     end
   end

@@ -9,20 +9,24 @@ describe Annotate do
 
   describe '.eager_load' do
     let(:options) { { model_dir: ['app/models'], require: [] } }
+    let(:rails_application_class) do
+      Class.new do
+        def eager_load!; end
+      end
+    end
+    let(:rails_application) { instance_spy(rails_application_class) }
 
     before do
       allow(Annotate).to receive(:require).with('annotate/active_record_patch')
+      stub_const('Rails', Module.new)
+      stub_const('Rails::Application', Class.new)
+      allow(Rails).to receive_messages(application: rails_application, version: '8.1.0')
     end
 
     it 'uses Rails.application when available' do
-      rails_application = instance_double('RailsApplication')
-      stub_const('Rails', Module.new)
-      stub_const('Rails::Application', Class.new)
-      allow(Rails).to receive(:application).and_return(rails_application)
-      allow(Rails).to receive(:version).and_return('8.1.0')
-      expect(rails_application).to receive(:eager_load!)
-
       Annotate.eager_load(options)
+
+      expect(rails_application).to have_received(:eager_load!)
     end
   end
 end
