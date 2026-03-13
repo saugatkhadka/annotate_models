@@ -49,7 +49,16 @@ when using `SpatialAdapter`, `PostgisAdapter` or `PostGISAdapter`:
 #  path            :geometry        line_string, 4326
 ```
 
-Also, if you pass the `-r` option, it'll annotate `routes.rb` with the output of `rake routes`.
+Also, if you pass the `-r` option, it'll annotate `routes.rb` with the output of
+the app's routes command. On modern Rails versions annotate prefers `bin/rails routes`,
+falls back to `bundle exec rails routes`, and only uses `rake routes` as a last resort.
+
+## Compatibility
+
+- Gem name: `annotate`
+- Ruby: 3.2.x, 3.3.x, 3.4.x
+- Rails: 7.2.x, 8.1.x
+- ActiveRecord: 7.2.x, 8.1.x
 
 
 ## Upgrading to 3.X and annotate models not working?
@@ -174,7 +183,9 @@ functionality:
     rake remove_annotation                        # Remove schema information from model and fixture files
 
 By default, once you've generated a configuration file, annotate will be
-executed whenever you run `rake db:migrate` (but only in development mode).
+executed whenever you run `db:migrate` (but only in development mode).
+On Rails 7.2+ this also applies to namespaced multi-database migration tasks
+such as `db:migrate:primary`.
 If you want to disable this behavior permanently,
 edit the `.rake` file and change:
 
@@ -188,11 +199,11 @@ To:
     'skip_on_db_migrate'   => 'true',
 ```
 
-If you want to run `rake db:migrate` as a one-off without running annotate,
+If you want to run `db:migrate` as a one-off without running annotate,
 you can do so with a simple environment variable, instead of editing the
 `.rake` file:
 
-    ANNOTATE_SKIP_ON_DB_MIGRATE=1 rake db:migrate
+    ANNOTATE_SKIP_ON_DB_MIGRATE=1 bin/rails db:migrate
 
 ## Options
 
@@ -217,7 +228,7 @@ you can do so with a simple environment variable, instead of editing the
                                          If --w option is used, the same text will be used as opening and closing
             --wo, --wrapper-open STR     Annotation wrapper opening.
             --wc, --wrapper-close STR    Annotation wrapper closing
-        -r, --routes                     Annotate routes.rb with the output of 'rake routes'
+        -r, --routes                     Annotate routes.rb with the app's routes command output
             --models                     Annotate ActiveRecord models
         -a, --active-admin               Annotate active_admin models
         -v, --version                    Show the current version of this gem
