@@ -1,5 +1,13 @@
 ## Annotate (aka AnnotateModels)
 
+This repository is a compatibility fork of the original
+[`ctran/annotate_models`](https://github.com/ctran/annotate_models) project.
+I created it so `annotate` keeps working on newer Ruby and Rails versions with
+as little behavior change as possible.
+
+- Original project: [`ctran/annotate_models`](https://github.com/ctran/annotate_models)
+- Upgrade notes for this fork: [`docs/rails_8_upgrade.md`](docs/rails_8_upgrade.md)
+
 [![Gem Version](https://badge.fury.io/rb/annotate.svg)](http://badge.fury.io/rb/annotate)
 [![Downloads count](https://img.shields.io/gem/dt/annotate.svg?style=flat)](https://rubygems.org/gems/annotate)
 [![CI Status](https://github.com/ctran/annotate_models/workflows/CI/badge.svg)](https://github.com/ctran/annotate_models/actions?workflow=CI)
@@ -99,9 +107,12 @@ Into Gemfile from Github:
 
 ```ruby
 group :development do
-  gem 'annotate', git: 'https://github.com/ctran/annotate_models.git'
+  gem 'annotate', git: 'https://github.com/saugatkhadka/annotate_models.git'
 end
 ```
+
+If you are using this fork in a regular Rails project, this is the only change
+you need to make in the Gemfile.
 
 Into environment gems from rubygems.org:
 
@@ -109,7 +120,7 @@ Into environment gems from rubygems.org:
 
 Into environment gems from Github checkout:
 
-    git clone https://github.com/ctran/annotate_models.git annotate_models
+    git clone https://github.com/saugatkhadka/annotate_models.git annotate_models
     cd annotate_models
     rake gem
     gem install dist/annotate-*.gem
